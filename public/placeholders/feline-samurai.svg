@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#16091f"/>
+      <stop offset="100%" stop-color="#6a1b4d"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" rx="48" fill="url(#bg)"/>
+  <circle cx="400" cy="270" r="170" fill="#d7b46a" opacity=".15"/>
+  <path d="M255 318c0-124 65-214 145-214s145 90 145 214-65 214-145 214-145-90-145-214Z" fill="#f3dfc5"/>
+  <path d="M275 262l72-116 43 132Z" fill="#f2b8cf" opacity=".72"/>
+  <path d="M525 262l-72-116-43 132Z" fill="#f2b8cf" opacity=".72"/>
+  <path d="M238 760c57-111 120-170 162-170s105 59 162 170v170H238Z" fill="#1b1027"/>
+  <path d="M244 716h312" stroke="#d7b46a" stroke-width="14"/>
+  <text x="400" y="902" fill="#f6ebcf" font-family="Georgia, serif" font-size="44" text-anchor="middle">Feline Samurai</text>
+</svg>

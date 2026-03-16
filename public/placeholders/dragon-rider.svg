@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2b120c"/>
+      <stop offset="100%" stop-color="#7a2834"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" rx="48" fill="url(#bg)"/>
+  <circle cx="400" cy="236" r="168" fill="#d8b86f" opacity=".15"/>
+  <ellipse cx="400" cy="350" rx="162" ry="196" fill="#f2ddc4"/>
+  <path d="M288 260l68-114 40 132Z" fill="#f0baaf" opacity=".74"/>
+  <path d="M512 260l-68-114-40 132Z" fill="#f0baaf" opacity=".74"/>
+  <path d="M226 788c84-120 144-178 174-178s90 58 174 178v138H226Z" fill="#251314"/>
+  <path d="M264 734c40-34 85-50 136-50s96 16 136 50" stroke="#d8b86f" stroke-width="16" fill="none"/>
+  <text x="400" y="904" fill="#f7e7cf" font-family="Georgia, serif" font-size="44" text-anchor="middle">Dragon Rider</text>
+</svg>

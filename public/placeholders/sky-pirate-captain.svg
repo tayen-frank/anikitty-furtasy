@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#101a36"/>
+      <stop offset="100%" stop-color="#8a4c2f"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" rx="48" fill="url(#bg)"/>
+  <circle cx="400" cy="246" r="176" fill="#d8b86f" opacity=".15"/>
+  <ellipse cx="400" cy="352" rx="162" ry="196" fill="#f4e0c8"/>
+  <path d="M288 262l68-114 40 132Z" fill="#f2c9d4" opacity=".7"/>
+  <path d="M512 262l-68-114-40 132Z" fill="#f2c9d4" opacity=".7"/>
+  <path d="M226 786c88-118 146-176 174-176s86 58 174 176v138H226Z" fill="#182234"/>
+  <path d="M252 718h296" stroke="#d8b86f" stroke-width="16"/>
+  <text x="400" y="904" fill="#f6ebcf" font-family="Georgia, serif" font-size="40" text-anchor="middle">Sky Pirate Captain</text>
+</svg>

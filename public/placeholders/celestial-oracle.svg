@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#120e30"/>
+      <stop offset="100%" stop-color="#4e5db7"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" rx="48" fill="url(#bg)"/>
+  <circle cx="400" cy="200" r="156" fill="#f4c8ff" opacity=".14"/>
+  <circle cx="400" cy="200" r="198" fill="none" stroke="#d7b66f" stroke-width="8" opacity=".45"/>
+  <ellipse cx="400" cy="352" rx="162" ry="196" fill="#f4e0ca"/>
+  <path d="M288 262l68-114 40 132Z" fill="#f4c8ff" opacity=".74"/>
+  <path d="M512 262l-68-114-40 132Z" fill="#f4c8ff" opacity=".74"/>
+  <path d="M222 790c94-128 150-190 178-190s84 62 178 190v142H222Z" fill="#161431"/>
+  <path d="M266 754l34-42 32 42 32-42 36 42 32-42 36 42 32-42 38 42" stroke="#d7b66f" stroke-width="10" fill="none"/>
+  <text x="400" y="906" fill="#eef1ff" font-family="Georgia, serif" font-size="42" text-anchor="middle">Celestial Oracle</text>
+</svg>

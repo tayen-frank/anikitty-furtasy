@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --font-body: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background: #080510;
+  color: #f5ebff;
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+::selection {
+  background: rgba(214, 178, 94, 0.3);
+  color: #ffffff;
+}
+
+.fantasy-shell {
+  background-image: radial-gradient(circle at top, rgba(164, 93, 214, 0.16), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(214, 178, 94, 0.14), transparent 28%),
+    linear-gradient(180deg, #140a29 0%, #0b0618 55%, #05030f 100%);
+}
+
+.admin-shell {
+  background-image: linear-gradient(180deg, #f9f5ed 0%, #f2efe8 100%);
+  color: #1e2433;
+}
+
+.ornate-border {
+  position: relative;
+}
+
+.ornate-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(214, 178, 94, 0.9), rgba(214, 178, 94, 0.15), rgba(244, 200, 255, 0.45));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}

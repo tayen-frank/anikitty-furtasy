@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#090c18"/>
+      <stop offset="100%" stop-color="#352f55"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" rx="48" fill="url(#bg)"/>
+  <circle cx="400" cy="240" r="170" fill="#d6b56d" opacity=".12"/>
+  <ellipse cx="400" cy="350" rx="162" ry="196" fill="#e9d7c2"/>
+  <path d="M288 260l68-114 40 132Z" fill="#b4acd8" opacity=".75"/>
+  <path d="M512 260l-68-114-40 132Z" fill="#b4acd8" opacity=".75"/>
+  <path d="M226 786c88-122 144-182 174-182s86 60 174 182v140H226Z" fill="#0e101b"/>
+  <path d="M256 734l144-72 144 72" stroke="#d6b56d" stroke-width="12" fill="none"/>
+  <text x="400" y="904" fill="#ece8ff" font-family="Georgia, serif" font-size="42" text-anchor="middle">Shadow Assassin</text>
+</svg>

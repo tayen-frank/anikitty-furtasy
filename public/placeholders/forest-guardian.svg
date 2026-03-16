@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f261b"/>
+      <stop offset="100%" stop-color="#557c3d"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" rx="48" fill="url(#bg)"/>
+  <circle cx="400" cy="250" r="176" fill="#d5b46a" opacity=".15"/>
+  <ellipse cx="400" cy="352" rx="162" ry="196" fill="#f2dfca"/>
+  <path d="M284 262l70-112 40 130Z" fill="#b5d3a0" opacity=".8"/>
+  <path d="M516 262l-70-112-40 130Z" fill="#b5d3a0" opacity=".8"/>
+  <path d="M224 784c98-124 152-184 176-184s78 60 176 184v140H224Z" fill="#16291b"/>
+  <path d="M258 752c42-36 89-54 142-54s100 18 142 54" stroke="#d5b46a" stroke-width="14" fill="none"/>
+  <text x="400" y="904" fill="#eef6d6" font-family="Georgia, serif" font-size="44" text-anchor="middle">Forest Guardian</text>
+</svg>

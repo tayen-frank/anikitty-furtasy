@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1d132e"/>
+      <stop offset="100%" stop-color="#8d315d"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" rx="48" fill="url(#bg)"/>
+  <rect x="110" y="88" width="580" height="824" rx="34" fill="none" stroke="#d8bb72" stroke-width="10" opacity=".7"/>
+  <ellipse cx="400" cy="330" rx="165" ry="200" fill="#f4e2cd"/>
+  <path d="M288 240l74-120 36 148Z" fill="#f1bbd0"/>
+  <path d="M512 240l-74-120-36 148Z" fill="#f1bbd0"/>
+  <path d="M238 760c78-102 136-150 162-150s84 48 162 150v160H238Z" fill="#321433"/>
+  <path d="M252 748c46-38 94-56 148-56s102 18 148 56" stroke="#d8bb72" stroke-width="16" fill="none"/>
+  <text x="400" y="904" fill="#f6ebcf" font-family="Georgia, serif" font-size="44" text-anchor="middle">Royal Aristocat</text>
+</svg>

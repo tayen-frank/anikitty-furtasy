@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1432"/>
+      <stop offset="100%" stop-color="#6a3db2"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" rx="48" fill="url(#bg)"/>
+  <circle cx="400" cy="210" r="104" fill="#d2b66d" opacity=".18"/>
+  <circle cx="400" cy="210" r="152" fill="none" stroke="#f5ccff" stroke-width="8" opacity=".5"/>
+  <ellipse cx="400" cy="360" rx="160" ry="196" fill="#f4dfca"/>
+  <path d="M286 266l68-110 40 132Z" fill="#f4c8ff" opacity=".7"/>
+  <path d="M514 266l-68-110-40 132Z" fill="#f4c8ff" opacity=".7"/>
+  <path d="M222 790c90-128 150-190 178-190s88 62 178 190v144H222Z" fill="#18132d"/>
+  <path d="M276 742l44-50 48 50 34-58 30 58 52-50 40 50" stroke="#d2b66d" stroke-width="12" fill="none"/>
+  <text x="400" y="906" fill="#f6ebcf" font-family="Georgia, serif" font-size="42" text-anchor="middle">Arcane Spellcaster</text>
+</svg>
