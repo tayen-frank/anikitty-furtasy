@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import type { Route } from "next";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { GeminiSettingsPanel } from "@/components/admin/gemini-settings-panel";
 import { GenerationRecordsPanel } from "@/components/admin/generation-records-panel";
@@ -48,7 +49,8 @@ export function DashboardShell() {
                 onClick={() => {
                   const nextParams = new URLSearchParams(searchParams.toString());
                   nextParams.set("tab", tab.id);
-                  router.replace(`${pathname}?${nextParams.toString()}`);
+                  const nextRoute = `${pathname}?${nextParams.toString()}` as Route;
+                  router.replace(nextRoute);
                 }}
                 className={cn(
                   "w-full rounded-2xl px-4 py-4 text-left transition",
