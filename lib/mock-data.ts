@@ -129,7 +129,8 @@ Requirements:
 
 export const appSettings: AppSettings = {
   gemini: {
-    modelName: "gemini-3.1-flash-image-preview",
+    modelName: "gemini-2.5-flash-image",
+    availableModels: ["gemini-2.5-flash-image", "gemini-3.1-flash-image-preview"],
     promptTemplate: geminiPromptTemplate,
     apiKeyConfigured: true,
     lastRotatedAt: "2026-03-01T06:30:00.000Z",

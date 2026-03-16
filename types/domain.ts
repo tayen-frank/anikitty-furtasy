@@ -42,6 +42,7 @@ export type PortraitJobRecord = {
 export type AppSettings = {
   gemini: {
     modelName: string;
+    availableModels: string[];
     promptTemplate: string;
     apiKeyConfigured: boolean;
     lastRotatedAt: string | null;

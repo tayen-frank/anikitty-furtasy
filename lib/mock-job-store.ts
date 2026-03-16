@@ -161,7 +161,7 @@ async function processJob(id: string) {
       loadingPhraseIndex: 5,
     });
 
-    if (canUseGeminiImageGeneration() && getR2Config().isConfigured) {
+    if ((await canUseGeminiImageGeneration()) && getR2Config().isConfigured) {
       const generatedImage = await generateFantasyCatPortrait({
         catName: job.catName,
         styleName: job.styleName,

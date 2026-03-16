@@ -40,13 +40,14 @@ export default async function AdminDashboardPage() {
     redirect("/admin");
   }
 
-  const geminiSettings = getGeminiRuntimeSettings();
+  const geminiSettings = await getGeminiRuntimeSettings();
   const appSettings: AppSettings = {
     gemini: {
       modelName: geminiSettings.modelName,
+      availableModels: geminiSettings.availableModels,
       promptTemplate: geminiSettings.promptTemplate,
       apiKeyConfigured: geminiSettings.apiKeyConfigured,
-      lastRotatedAt: null,
+      lastRotatedAt: geminiSettings.lastRotatedAt,
     },
   };
 

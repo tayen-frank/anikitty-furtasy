@@ -1,4 +1,4 @@
-import { geminiPromptTemplate } from "@/lib/mock-data";
+import { getDefaultGeminiPromptTemplate, getPersistedAppSettings } from "@/lib/app-settings-store";
 
 type GeneratePortraitInput = {
   catName: string;
@@ -38,22 +38,38 @@ type GeminiGenerateContentResponse = {
   };
 };
 
-export function getGeminiRuntimeSettings() {
+export const DEFAULT_GEMINI_IMAGE_MODEL = "gemini-2.5-flash-image";
+export const CURATED_GEMINI_IMAGE_MODELS = [
+  DEFAULT_GEMINI_IMAGE_MODEL,
+  "gemini-3.1-flash-image-preview",
+] as const;
+
+export async function getGeminiRuntimeSettings() {
   const apiKey = process.env.GEMINI_API_KEY?.trim() ?? "";
-  const modelName =
-    process.env.GEMINI_MODEL?.trim() || "gemini-3.1-flash-image-preview";
-  const promptTemplate = process.env.GEMINI_PROMPT_TEMPLATE?.trim() || geminiPromptTemplate;
+  const persistedSettings = await getPersistedAppSettings();
+  const envModelName = process.env.GEMINI_MODEL?.trim() ?? "";
+  const persistedModelName = persistedSettings?.gemini?.modelName?.trim() ?? "";
+  const persistedPromptTemplate = persistedSettings?.gemini?.promptTemplate?.trim() ?? "";
+  const envPromptTemplate = process.env.GEMINI_PROMPT_TEMPLATE?.trim() ?? "";
+  const modelName = persistedModelName || envModelName || DEFAULT_GEMINI_IMAGE_MODEL;
+  const promptTemplate =
+    persistedPromptTemplate || envPromptTemplate || getDefaultGeminiPromptTemplate();
+  const availableModels = Array.from(
+    new Set([modelName, ...CURATED_GEMINI_IMAGE_MODELS]),
+  );
 
   return {
     apiKey,
     modelName,
+    availableModels,
     promptTemplate,
     apiKeyConfigured: Boolean(apiKey),
+    lastRotatedAt: persistedSettings?.gemini?.lastRotatedAt ?? null,
   };
 }
 
-export function canUseGeminiImageGeneration() {
-  return getGeminiRuntimeSettings().apiKeyConfigured;
+export async function canUseGeminiImageGeneration() {
+  return (await getGeminiRuntimeSettings()).apiKeyConfigured;
 }
 
 export async function generateFantasyCatPortrait({
@@ -63,7 +79,7 @@ export async function generateFantasyCatPortrait({
   styleReferenceUrl,
   promptTemplate,
 }: GeneratePortraitInput): Promise<GeneratedPortraitImage> {
-  const settings = getGeminiRuntimeSettings();
+  const settings = await getGeminiRuntimeSettings();
 
   if (!settings.apiKeyConfigured) {
     throw new Error("GEMINI_API_KEY is not configured.");
