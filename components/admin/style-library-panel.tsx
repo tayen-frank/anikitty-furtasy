@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { uploadImageToR2 } from "@/lib/client/upload-image-to-r2";
 import { Badge } from "@/components/ui/badge";
 import { buttonStyles } from "@/components/ui/button";
 import type { FantasyStyle } from "@/types/domain";
@@ -8,7 +9,10 @@ import { formatDateTime } from "@/lib/utils";
 
 export function StyleLibraryPanel({ initialStyles }: { initialStyles: FantasyStyle[] }) {
   const [styles, setStyles] = useState(initialStyles);
-  const [message, setMessage] = useState("Preview uploads are local-only in this mock scaffold.");
+  const [message, setMessage] = useState(
+    "Style assets now upload directly to Cloudflare R2 using presigned URLs.",
+  );
+  const [uploadingStyleId, setUploadingStyleId] = useState<string | null>(null);
 
   const sortedStyles = useMemo(
     () => [...styles].sort((left, right) => left.name.localeCompare(right.name)),
@@ -64,32 +68,55 @@ export function StyleLibraryPanel({ initialStyles }: { initialStyles: FantasySty
                 <label className="inline-flex cursor-pointer items-center gap-3">
                   <input
                     type="file"
-                    accept=".jpg,.jpeg,.png,.webp"
+                    accept=".jpg,.jpeg,.png,.webp,.heic"
                     className="hidden"
-                    onChange={(event) => {
+                    onChange={async (event) => {
                       const file = event.target.files?.[0];
 
                       if (!file) {
                         return;
                       }
 
-                      const previewUrl = URL.createObjectURL(file);
-                      setStyles((current) =>
-                        current.map((item) =>
-                          item.id === style.id
-                            ? {
-                                ...item,
-                                imageUrl: previewUrl,
-                                updatedAt: new Date().toISOString(),
-                              }
-                            : item,
-                        ),
-                      );
-                      setMessage(`Mock replaced preview for ${style.name}.`);
+                      setUploadingStyleId(style.id);
+                      setMessage(`Uploading ${style.name} to R2...`);
+
+                      try {
+                        const uploadedStyleImage = await uploadImageToR2({
+                          file,
+                          folder: "styles",
+                          userId: "admin-library",
+                        });
+
+                        setStyles((current) =>
+                          current.map((item) =>
+                            item.id === style.id
+                              ? {
+                                  ...item,
+                                  imageUrl: uploadedStyleImage.publicUrl,
+                                  updatedAt: new Date().toISOString(),
+                                }
+                              : item,
+                          ),
+                        );
+                        setMessage(`Uploaded ${style.name} to R2 successfully.`);
+                      } catch (error) {
+                        setMessage(
+                          error instanceof Error
+                            ? error.message
+                            : `Failed to upload ${style.name} to R2.`,
+                        );
+                      } finally {
+                        setUploadingStyleId(null);
+                        event.target.value = "";
+                      }
                     }}
                   />
                   <span className={buttonStyles({ variant: "admin" })}>
-                    {style.imageUrl.includes("blob:") ? "Replace Preview" : "Upload / Replace"}
+                    {uploadingStyleId === style.id
+                      ? "Uploading..."
+                      : style.imageUrl.includes("/styles/")
+                        ? "Replace in R2"
+                        : "Upload / Replace"}
                   </span>
                 </label>
               </div>
@@ -98,8 +125,7 @@ export function StyleLibraryPanel({ initialStyles }: { initialStyles: FantasySty
         ))}
       </div>
       <p className="text-sm leading-6 text-admin-slate">
-        TODO: Store source assets in object storage, version them, and enforce admin permissions plus
-        audit logs on replacement.
+        TODO: Persist style metadata in the database and keep a revision history for asset changes.
       </p>
     </div>
   );

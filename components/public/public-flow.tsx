@@ -7,6 +7,7 @@ import { RevealStep } from "@/components/public/reveal-step";
 import { StartStep } from "@/components/public/start-step";
 import { StyleSelectionStep } from "@/components/public/style-selection-step";
 import { UploadStep } from "@/components/public/upload-step";
+import { uploadImageToR2 } from "@/lib/client/upload-image-to-r2";
 import { loadingPhrases, publicFlowSteps, styles } from "@/lib/mock-data";
 import type { FlowStepId, PortraitJobSnapshot } from "@/types/domain";
 
@@ -184,14 +185,23 @@ export function PublicFlow() {
     setIsSubmitting(true);
 
     try {
-      const formData = new FormData();
-      formData.append("catName", catName);
-      formData.append("styleId", selectedStyle.id);
-      formData.append("photo", photoFile);
-
+      const uploadedPhoto = await uploadImageToR2({
+        file: photoFile,
+        folder: "uploads",
+        userId: createUploadUserId(catName),
+      });
       const response = await fetch("/api/portrait-jobs", {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          catName,
+          styleId: selectedStyle.id,
+          photoName: photoFile.name,
+          photoUrl: uploadedPhoto.publicUrl,
+          photoKey: uploadedPhoto.objectKey,
+        }),
       });
 
       if (!response.ok) {
@@ -275,4 +285,15 @@ export function PublicFlow() {
       </div>
     </main>
   );
+}
+
+function createUploadUserId(catName: string) {
+  const slug = catName
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-_]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return slug || "guest";
 }
