@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { uploadImageToR2 } from "@/lib/client/upload-image-to-r2";
 import { Badge } from "@/components/ui/badge";
-import { buttonStyles } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import type { FantasyStyle } from "@/types/domain";
 import { formatDateTime } from "@/lib/utils";
 
@@ -13,6 +13,7 @@ export function StyleLibraryPanel({ initialStyles }: { initialStyles: FantasySty
     "Style assets now upload directly to Cloudflare R2 using presigned URLs.",
   );
   const [uploadingStyleId, setUploadingStyleId] = useState<string | null>(null);
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const sortedStyles = useMemo(
     () => [...styles].sort((left, right) => left.name.localeCompare(right.name)),
@@ -65,60 +66,68 @@ export function StyleLibraryPanel({ initialStyles }: { initialStyles: FantasySty
                     <dd>{formatDateTime(style.updatedAt)}</dd>
                   </div>
                 </dl>
-                <label className="inline-flex cursor-pointer items-center gap-3">
-                  <input
-                    type="file"
-                    accept=".jpg,.jpeg,.png,.webp,.heic"
-                    className="hidden"
-                    onChange={async (event) => {
-                      const file = event.target.files?.[0];
 
-                      if (!file) {
-                        return;
-                      }
+                <input
+                  ref={(element) => {
+                    fileInputRefs.current[style.id] = element;
+                  }}
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.webp,.heic"
+                  className="hidden"
+                  onChange={async (event) => {
+                    const file = event.target.files?.[0];
 
-                      setUploadingStyleId(style.id);
-                      setMessage(`Uploading ${style.name} to R2...`);
+                    if (!file) {
+                      return;
+                    }
 
-                      try {
-                        const uploadedStyleImage = await uploadImageToR2({
-                          file,
-                          folder: "styles",
-                          userId: "admin-library",
-                        });
+                    setUploadingStyleId(style.id);
+                    setMessage(`Uploading ${style.name} to R2...`);
 
-                        setStyles((current) =>
-                          current.map((item) =>
-                            item.id === style.id
-                              ? {
-                                  ...item,
-                                  imageUrl: uploadedStyleImage.publicUrl,
-                                  updatedAt: new Date().toISOString(),
-                                }
-                              : item,
-                          ),
-                        );
-                        setMessage(`Uploaded ${style.name} to R2 successfully.`);
-                      } catch (error) {
-                        setMessage(
-                          error instanceof Error
-                            ? error.message
-                            : `Failed to upload ${style.name} to R2.`,
-                        );
-                      } finally {
-                        setUploadingStyleId(null);
-                        event.target.value = "";
-                      }
-                    }}
-                  />
-                  <span className={buttonStyles({ variant: "admin" })}>
-                    {uploadingStyleId === style.id
-                      ? "Uploading..."
-                      : style.imageUrl.includes("/styles/")
-                        ? "Replace in R2"
-                        : "Upload / Replace"}
-                  </span>
-                </label>
+                    try {
+                      const uploadedStyleImage = await uploadImageToR2({
+                        file,
+                        folder: "styles",
+                        userId: "admin-library",
+                      });
+
+                      setStyles((current) =>
+                        current.map((item) =>
+                          item.id === style.id
+                            ? {
+                                ...item,
+                                imageUrl: uploadedStyleImage.publicUrl,
+                                updatedAt: new Date().toISOString(),
+                              }
+                            : item,
+                        ),
+                      );
+                      setMessage(`Uploaded ${style.name} to R2 successfully.`);
+                    } catch (error) {
+                      setMessage(
+                        error instanceof Error
+                          ? error.message
+                          : `Failed to upload ${style.name} to R2.`,
+                      );
+                    } finally {
+                      setUploadingStyleId(null);
+                      event.target.value = "";
+                    }
+                  }}
+                />
+
+                <Button
+                  variant="admin"
+                  type="button"
+                  onClick={() => fileInputRefs.current[style.id]?.click()}
+                  disabled={uploadingStyleId === style.id}
+                >
+                  {uploadingStyleId === style.id
+                    ? "Uploading..."
+                    : style.imageUrl.includes("/styles/")
+                      ? "Replace in R2"
+                      : "Upload / Replace"}
+                </Button>
               </div>
             </div>
           </div>
