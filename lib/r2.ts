@@ -1,5 +1,6 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import type { PutObjectCommandInput } from "@aws-sdk/client-s3";
 
 export const R2_FOLDERS = ["styles", "uploads", "results"] as const;
 
@@ -143,7 +144,7 @@ export async function uploadObjectToR2({
     new PutObjectCommand({
       Bucket: config.bucketName,
       Key: objectKey,
-      Body: body,
+      Body: normalizeUploadBody(body),
       ContentType: fileType,
       CacheControl: cacheControl,
     }),
@@ -153,6 +154,16 @@ export async function uploadObjectToR2({
     objectKey,
     publicUrl: buildR2PublicUrl(objectKey),
   };
+}
+
+function normalizeUploadBody(
+  body: UploadObjectToR2Input["body"],
+): NonNullable<PutObjectCommandInput["Body"]> {
+  if (body instanceof ArrayBuffer) {
+    return new Uint8Array(body);
+  }
+
+  return body as NonNullable<PutObjectCommandInput["Body"]>;
 }
 
 function sanitizePathSegment(value: string) {
