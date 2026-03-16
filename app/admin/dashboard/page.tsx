@@ -1,5 +1,8 @@
 import { Suspense } from "react";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { DashboardShell } from "@/components/admin/dashboard-shell";
+import { ADMIN_SESSION_COOKIE_NAME, readAdminSession } from "@/lib/auth/admin-session";
 
 function DashboardShellFallback() {
   return (
@@ -21,10 +24,19 @@ function DashboardShellFallback() {
   );
 }
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const cookieStore = await cookies();
+  const session = await readAdminSession(
+    cookieStore.get(ADMIN_SESSION_COOKIE_NAME)?.value ?? null,
+  );
+
+  if (!session) {
+    redirect("/admin");
+  }
+
   return (
     <Suspense fallback={<DashboardShellFallback />}>
-      <DashboardShell />
+      <DashboardShell adminEmail={session.email} />
     </Suspense>
   );
 }

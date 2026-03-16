@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import type { Route } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
+import { AdminLogoutButton } from "@/components/admin/admin-logout-button";
 import { GeminiSettingsPanel } from "@/components/admin/gemini-settings-panel";
 import { GenerationRecordsPanel } from "@/components/admin/generation-records-panel";
 import { StyleLibraryPanel } from "@/components/admin/style-library-panel";
@@ -13,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 const DASHBOARD_ROUTE = "/admin/dashboard" as const;
 
-export function DashboardShell() {
+export function DashboardShell({ adminEmail }: { adminEmail: string }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const activeTab = (searchParams.get("tab") as AdminDashboardTab | null) ?? "style-library";
@@ -76,8 +77,12 @@ export function DashboardShell() {
           <div className="mt-6 rounded-[1.5rem] border border-white/10 bg-white/5 p-4">
             <p className="text-sm uppercase tracking-[0.22em] text-[#d9ba7c]">Security</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <Badge tone="gold">Server-only keys</Badge>
-              <Badge tone="violet">TODO auth middleware</Badge>
+              <Badge tone="gold">Session protected</Badge>
+              <Badge tone="violet">Server-only secrets</Badge>
+            </div>
+            <p className="mt-4 text-sm leading-6 text-white/65">{adminEmail}</p>
+            <div className="mt-4">
+              <AdminLogoutButton />
             </div>
           </div>
         </aside>
