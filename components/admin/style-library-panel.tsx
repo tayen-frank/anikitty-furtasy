@@ -16,7 +16,10 @@ export function StyleLibraryPanel({ initialStyles }: { initialStyles: FantasySty
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const sortedStyles = useMemo(
-    () => [...styles].sort((left, right) => left.name.localeCompare(right.name)),
+    () =>
+      [...styles].sort((left, right) =>
+        String(left.name ?? "").localeCompare(String(right.name ?? "")),
+      ),
     [styles],
   );
 

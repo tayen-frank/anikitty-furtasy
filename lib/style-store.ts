@@ -11,7 +11,7 @@ import type { FantasyStyle } from "@/types/domain";
 type PersistedStyleManifest = {
   version: 1;
   updatedAt: string;
-  styles: FantasyStyle[];
+  styles: unknown;
 };
 
 type UpdateStylePatch = Partial<
@@ -22,7 +22,7 @@ type UpdateStylePatch = Partial<
 
 export async function getAllStyles() {
   const manifest = await readStyleManifest();
-  return manifest?.styles?.length ? manifest.styles : seededStyles.map((style) => ({ ...style }));
+  return normalizeStyles(manifest?.styles);
 }
 
 export async function getStyleById(styleId: string) {
@@ -72,7 +72,11 @@ async function readStyleManifest() {
 }
 
 async function writeStyleManifest(styles: FantasyStyle[]) {
-  await writeJsonToR2<PersistedStyleManifest>({
+  await writeJsonToR2<{
+    version: 1;
+    updatedAt: string;
+    styles: FantasyStyle[];
+  }>({
     objectKey: STYLE_MANIFEST_OBJECT_KEY,
     value: {
       version: 1,
@@ -80,4 +84,58 @@ async function writeStyleManifest(styles: FantasyStyle[]) {
       styles,
     },
   });
+}
+
+function normalizeStyles(input: unknown): FantasyStyle[] {
+  if (!Array.isArray(input)) {
+    return seededStyles.map((style) => ({ ...style }));
+  }
+
+  const persistedById = new Map<string, Partial<FantasyStyle>>();
+
+  for (const item of input) {
+    if (!isRecord(item)) {
+      continue;
+    }
+
+    const id = typeof item.id === "string" ? item.id : "";
+
+    if (!id) {
+      continue;
+    }
+
+    persistedById.set(id, {
+      id,
+      slug: typeof item.slug === "string" ? item.slug : undefined,
+      name: typeof item.name === "string" ? item.name : undefined,
+      description: typeof item.description === "string" ? item.description : undefined,
+      imageUrl: typeof item.imageUrl === "string" ? item.imageUrl : undefined,
+      updatedAt: typeof item.updatedAt === "string" ? item.updatedAt : undefined,
+      status: item.status === "draft" ? "draft" : item.status === "active" ? "active" : undefined,
+    });
+  }
+
+  return seededStyles.map((seededStyle) => {
+    const persisted = persistedById.get(seededStyle.id);
+
+    if (!persisted) {
+      return { ...seededStyle };
+    }
+
+    return {
+      ...seededStyle,
+      ...persisted,
+      id: seededStyle.id,
+      slug: persisted.slug || seededStyle.slug,
+      name: persisted.name || seededStyle.name,
+      description: persisted.description || seededStyle.description,
+      imageUrl: persisted.imageUrl || seededStyle.imageUrl,
+      updatedAt: persisted.updatedAt || seededStyle.updatedAt,
+      status: persisted.status || seededStyle.status,
+    };
+  });
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
 }
