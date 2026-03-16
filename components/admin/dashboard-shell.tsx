@@ -8,28 +8,38 @@ import { GeminiSettingsPanel } from "@/components/admin/gemini-settings-panel";
 import { GenerationRecordsPanel } from "@/components/admin/generation-records-panel";
 import { StyleLibraryPanel } from "@/components/admin/style-library-panel";
 import { Badge } from "@/components/ui/badge";
-import { appSettings, dashboardTabs, generationRecords, styles } from "@/lib/mock-data";
-import type { AdminDashboardTab } from "@/types/domain";
+import { dashboardTabs } from "@/lib/mock-data";
+import type { AdminDashboardTab, AppSettings, FantasyStyle, PortraitJobRecord } from "@/types/domain";
 import { cn } from "@/lib/utils";
 
 const DASHBOARD_ROUTE = "/admin/dashboard" as const;
 
-export function DashboardShell({ adminEmail }: { adminEmail: string }) {
+export function DashboardShell({
+  adminEmail,
+  settings,
+  styles,
+  records,
+}: {
+  adminEmail: string;
+  settings: AppSettings;
+  styles: FantasyStyle[];
+  records: PortraitJobRecord[];
+}) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const activeTab = (searchParams.get("tab") as AdminDashboardTab | null) ?? "style-library";
 
   const activeContent = useMemo(() => {
     if (activeTab === "gemini-settings") {
-      return <GeminiSettingsPanel settings={appSettings} />;
+      return <GeminiSettingsPanel settings={settings} />;
     }
 
     if (activeTab === "generation-records") {
-      return <GenerationRecordsPanel records={generationRecords} />;
+      return <GenerationRecordsPanel records={records} />;
     }
 
     return <StyleLibraryPanel initialStyles={styles} />;
-  }, [activeTab]);
+  }, [activeTab, records, settings, styles]);
 
   return (
     <main className="admin-shell min-h-screen p-4 sm:p-6">

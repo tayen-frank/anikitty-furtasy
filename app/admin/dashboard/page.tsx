@@ -3,6 +3,12 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { DashboardShell } from "@/components/admin/dashboard-shell";
 import { ADMIN_SESSION_COOKIE_NAME, readAdminSession } from "@/lib/auth/admin-session";
+import { getGeminiRuntimeSettings } from "@/lib/gemini";
+import { getPortraitJobRecords } from "@/lib/mock-job-store";
+import { getAllStyles } from "@/lib/style-store";
+import type { AppSettings } from "@/types/domain";
+
+export const dynamic = "force-dynamic";
 
 function DashboardShellFallback() {
   return (
@@ -34,9 +40,24 @@ export default async function AdminDashboardPage() {
     redirect("/admin");
   }
 
+  const geminiSettings = getGeminiRuntimeSettings();
+  const appSettings: AppSettings = {
+    gemini: {
+      modelName: geminiSettings.modelName,
+      promptTemplate: geminiSettings.promptTemplate,
+      apiKeyConfigured: geminiSettings.apiKeyConfigured,
+      lastRotatedAt: null,
+    },
+  };
+
   return (
     <Suspense fallback={<DashboardShellFallback />}>
-      <DashboardShell adminEmail={session.email} />
+      <DashboardShell
+        adminEmail={session.email}
+        settings={appSettings}
+        styles={await getAllStyles()}
+        records={getPortraitJobRecords()}
+      />
     </Suspense>
   );
 }

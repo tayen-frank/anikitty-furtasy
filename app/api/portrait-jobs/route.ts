@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createMockPortraitJob } from "@/lib/mock-job-store";
-import { getStyleById } from "@/lib/mock-data";
+import { getStyleById } from "@/lib/style-store";
 
 type PortraitJobRequestBody = {
   catName?: string;
@@ -10,13 +10,14 @@ type PortraitJobRequestBody = {
   photoName?: string;
 };
 
+export const runtime = "nodejs";
+
 export async function POST(request: Request) {
   // TODO: Enforce real authentication / abuse controls before allowing job creation.
-  // TODO: Persist jobs in a real database instead of an in-memory mock store.
-  // TODO: Validate uploaded asset ownership, MIME type, and virus scanning asynchronously.
-  // TODO: Map styleId to a secured style reference image stored in R2.
-  // TODO: Call Gemini through a server-side integration layer only.
-  // TODO: Store generated result images in `results/` on R2 and persist the final URL.
+  // TODO: Persist jobs in a real database instead of an in-memory store.
+  // TODO: Validate uploaded asset ownership, MIME type, and malware scanning asynchronously.
+  // TODO: Replace this R2-backed style manifest with persisted style-library records from the database.
+  // TODO: Move long-running generation into a durable queue / worker for production scale.
   // TODO: Add audit logging and rate limiting for production usage.
   const contentType = request.headers.get("content-type") ?? "";
 
@@ -29,59 +30,36 @@ export async function POST(request: Request) {
     const photoName = String(body?.photoName ?? "").trim();
 
     if (!catName || !styleId || !photoUrl) {
-      return NextResponse.json(
-        { error: "Missing required job inputs." },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Missing required job inputs." }, { status: 400 });
     }
 
-    const style = getStyleById(styleId);
+    const style = await getStyleById(styleId);
 
     if (!style) {
       return NextResponse.json({ error: "Unknown style selected." }, { status: 400 });
     }
 
+    const styleReferenceUrl = style.imageUrl.startsWith("http")
+      ? style.imageUrl
+      : new URL(style.imageUrl, request.url).toString();
     const job = createMockPortraitJob({
       catName,
       styleId,
       styleName: style.name,
       photoName: photoName || photoKey || photoUrl,
+      photoUrl,
+      photoKey: photoKey || undefined,
+      styleReferenceUrl,
     });
 
     return NextResponse.json(job, { status: 201 });
   }
 
-  const formData = await request.formData();
-  const catName = String(formData.get("catName") ?? "").trim();
-  const styleId = String(formData.get("styleId") ?? "").trim();
-  const photo = formData.get("photo");
-
-  if (!catName || !styleId || !(photo instanceof File)) {
-    return NextResponse.json(
-      { error: "Missing required job inputs." },
-      { status: 400 },
-    );
-  }
-
-  const style = getStyleById(styleId);
-
-  if (!style) {
-    return NextResponse.json({ error: "Unknown style selected." }, { status: 400 });
-  }
-
-  if (photo.size > 10 * 1024 * 1024) {
-    return NextResponse.json(
-      { error: "Mock validation rejected files larger than 10MB." },
-      { status: 400 },
-    );
-  }
-
-  const job = createMockPortraitJob({
-    catName,
-    styleId,
-    styleName: style.name,
-    photoName: photo.name,
-  });
-
-  return NextResponse.json(job, { status: 201 });
+  return NextResponse.json(
+    {
+      error:
+        "Legacy multipart uploads are no longer supported here. Upload the image to R2 first, then submit the returned photoUrl/photoKey.",
+    },
+    { status: 400 },
+  );
 }

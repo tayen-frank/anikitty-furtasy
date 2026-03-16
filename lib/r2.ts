@@ -1,8 +1,9 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import type { PutObjectCommandInput } from "@aws-sdk/client-s3";
 
 export const R2_FOLDERS = ["styles", "uploads", "results"] as const;
+export const STYLE_MANIFEST_OBJECT_KEY = "styles/style-library.json";
 
 export type R2Folder = (typeof R2_FOLDERS)[number];
 
@@ -156,6 +157,89 @@ export async function uploadObjectToR2({
   };
 }
 
+export async function writeJsonToR2<T>({
+  objectKey,
+  value,
+  cacheControl = "no-store",
+}: {
+  objectKey: string;
+  value: T;
+  cacheControl?: string;
+}) {
+  const config = getR2Config();
+
+  if (!config.isConfigured) {
+    throw new Error(
+      "R2 storage is not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, and R2_PUBLIC_URL.",
+    );
+  }
+
+  await getR2Client().send(
+    new PutObjectCommand({
+      Bucket: config.bucketName,
+      Key: objectKey,
+      Body: JSON.stringify(value, null, 2),
+      ContentType: "application/json",
+      CacheControl: cacheControl,
+    }),
+  );
+}
+
+export async function readJsonFromR2<T>(objectKey: string): Promise<T | null> {
+  const config = getR2Config();
+
+  if (!config.isConfigured) {
+    return null;
+  }
+
+  try {
+    const response = await getR2Client().send(
+      new GetObjectCommand({
+        Bucket: config.bucketName,
+        Key: objectKey,
+      }),
+    );
+    const bodyText = await response.Body?.transformToString();
+
+    if (!bodyText) {
+      return null;
+    }
+
+    return JSON.parse(bodyText) as T;
+  } catch (error) {
+    if (isMissingObjectError(error)) {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
+export async function doesR2ObjectExist(objectKey: string) {
+  const config = getR2Config();
+
+  if (!config.isConfigured) {
+    return false;
+  }
+
+  try {
+    await getR2Client().send(
+      new HeadObjectCommand({
+        Bucket: config.bucketName,
+        Key: objectKey,
+      }),
+    );
+
+    return true;
+  } catch (error) {
+    if (isMissingObjectError(error)) {
+      return false;
+    }
+
+    throw error;
+  }
+}
+
 function normalizeUploadBody(
   body: UploadObjectToR2Input["body"],
 ): NonNullable<PutObjectCommandInput["Body"]> {
@@ -198,4 +282,13 @@ function getFileExtensionFromMimeType(fileType: string) {
     default:
       throw new Error(`Unsupported file type: ${fileType}`);
   }
+}
+
+function isMissingObjectError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    (error.name === "NoSuchKey" || error.name === "NotFound" || error.name === "404")
+  );
 }

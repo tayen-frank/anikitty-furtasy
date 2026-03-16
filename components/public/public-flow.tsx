@@ -8,8 +8,8 @@ import { StartStep } from "@/components/public/start-step";
 import { StyleSelectionStep } from "@/components/public/style-selection-step";
 import { UploadStep } from "@/components/public/upload-step";
 import { uploadImageToR2 } from "@/lib/client/upload-image-to-r2";
-import { loadingPhrases, publicFlowSteps, styles } from "@/lib/mock-data";
-import type { FlowStepId, PortraitJobSnapshot } from "@/types/domain";
+import { loadingPhrases, publicFlowSteps } from "@/lib/mock-data";
+import type { FantasyStyle, FlowStepId, PortraitJobSnapshot } from "@/types/domain";
 
 const STORAGE_KEY = "anikitty-public-flow";
 
@@ -23,7 +23,7 @@ type PersistedFlowState = {
   resultImageUrl: string | null;
 };
 
-export function PublicFlow() {
+export function PublicFlow({ initialStyles }: { initialStyles: FantasyStyle[] }) {
   const [currentStep, setCurrentStep] = useState<FlowStepId>("start");
   const [catName, setCatName] = useState("");
   const [passCode, setPassCode] = useState("");
@@ -35,7 +35,10 @@ export function PublicFlow() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasHydrated, setHasHydrated] = useState(false);
   const revealTimeoutRef = useRef<number | null>(null);
-  const selectedStyle = useMemo(() => styles.find((style) => style.id === styleId), [styleId]);
+  const selectedStyle = useMemo(
+    () => initialStyles.find((style) => style.id === styleId),
+    [initialStyles, styleId],
+  );
 
   useEffect(() => {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -54,7 +57,8 @@ export function PublicFlow() {
                 id: parsed.jobId,
                 catName: parsed.catName ?? "",
                 styleId: parsed.styleId ?? "",
-                styleName: styles.find((style) => style.id === parsed.styleId)?.name ?? "",
+                styleName:
+                  initialStyles.find((style) => style.id === parsed.styleId)?.name ?? "",
                 status: parsed.resultImageUrl ? "done" : "queued",
                 createdAt: new Date().toISOString(),
                 progress: parsed.resultImageUrl ? 100 : 5,
@@ -69,7 +73,7 @@ export function PublicFlow() {
     }
 
     setHasHydrated(true);
-  }, []);
+  }, [initialStyles]);
 
   useEffect(() => {
     if (!hasHydrated) {
@@ -236,7 +240,7 @@ export function PublicFlow() {
 
           {currentStep === "style" && (
             <StyleSelectionStep
-              styles={styles}
+              styles={initialStyles}
               selectedStyleId={styleId}
               onSelect={setStyleId}
               onPrevious={() => setCurrentStep("start")}
@@ -267,6 +271,7 @@ export function PublicFlow() {
               loadingPhraseIndex={jobSnapshot.loadingPhraseIndex}
               phrases={loadingPhrases}
               status={jobSnapshot.status}
+              errorMessage={jobSnapshot.errorMessage}
               onPrevious={() => setCurrentStep("upload")}
               onNext={() => setCurrentStep("reveal")}
             />

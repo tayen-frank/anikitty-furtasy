@@ -90,19 +90,39 @@ export function StyleLibraryPanel({ initialStyles }: { initialStyles: FantasySty
                         folder: "styles",
                         userId: "admin-library",
                       });
+                      const metadataResponse = await fetch(`/api/admin/styles/${style.id}`, {
+                        method: "PATCH",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          imageUrl: uploadedStyleImage.publicUrl,
+                          objectKey: uploadedStyleImage.objectKey,
+                          status: style.status,
+                        }),
+                      });
+                      const metadataPayload = (await metadataResponse.json().catch(() => null)) as
+                        | FantasyStyle
+                        | { error?: string }
+                        | null;
+
+                      if (!metadataResponse.ok) {
+                        throw new Error(
+                          metadataPayload &&
+                            typeof metadataPayload === "object" &&
+                            "error" in metadataPayload &&
+                            metadataPayload.error
+                            ? metadataPayload.error
+                            : "Uploaded to R2, but failed to update the style library record.",
+                        );
+                      }
+
+                      const persistedStyle = metadataPayload as FantasyStyle;
 
                       setStyles((current) =>
-                        current.map((item) =>
-                          item.id === style.id
-                            ? {
-                                ...item,
-                                imageUrl: uploadedStyleImage.publicUrl,
-                                updatedAt: new Date().toISOString(),
-                              }
-                            : item,
-                        ),
+                        current.map((item) => (item.id === style.id ? persistedStyle : item)),
                       );
-                      setMessage(`Uploaded ${style.name} to R2 successfully.`);
+                      setMessage(`Uploaded ${style.name} to R2 and saved it permanently.`);
                     } catch (error) {
                       setMessage(
                         error instanceof Error
@@ -134,7 +154,7 @@ export function StyleLibraryPanel({ initialStyles }: { initialStyles: FantasySty
         ))}
       </div>
       <p className="text-sm leading-6 text-admin-slate">
-        TODO: Persist style metadata in the database and keep a revision history for asset changes.
+        TODO: Move style metadata from the R2 manifest into a real database with revision history.
       </p>
     </div>
   );

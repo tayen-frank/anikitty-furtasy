@@ -24,6 +24,8 @@ export type PortraitJobSnapshot = {
   progress: number;
   loadingPhraseIndex: number;
   resultImageUrl?: string;
+  resultObjectKey?: string;
+  errorMessage?: string;
   completedAt?: string;
 };
 

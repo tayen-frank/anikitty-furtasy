@@ -9,6 +9,7 @@ type ProcessingStepProps = {
   loadingPhraseIndex: number;
   phrases: string[];
   status: PortraitJobStatus;
+  errorMessage?: string;
   onPrevious: () => void;
   onNext: () => void;
 };
@@ -20,6 +21,7 @@ export function ProcessingStep({
   loadingPhraseIndex,
   phrases,
   status,
+  errorMessage,
   onPrevious,
   onNext,
 }: ProcessingStepProps) {
@@ -35,7 +37,12 @@ export function ProcessingStep({
       <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 sm:p-8">
         <div className="h-4 overflow-hidden rounded-full bg-white/10">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-fantasy-plum via-fantasy-gold to-fantasy-rose transition-all duration-700"
+            className={cn(
+              "h-full rounded-full transition-all duration-700",
+              status === "failed"
+                ? "bg-gradient-to-r from-rose-700 via-rose-500 to-orange-300"
+                : "bg-gradient-to-r from-fantasy-plum via-fantasy-gold to-fantasy-rose",
+            )}
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -43,6 +50,12 @@ export function ProcessingStep({
           <span>Status: {status}</span>
           <span>{progress}%</span>
         </div>
+
+        {status === "failed" && errorMessage && (
+          <div className="mt-6 rounded-[1.5rem] border border-rose-400/25 bg-rose-500/10 px-4 py-4 text-left text-sm leading-6 text-rose-100">
+            {errorMessage}
+          </div>
+        )}
 
         <div className="mt-8 space-y-4 text-left">
           {phrases.map((phrase, index) => {
@@ -56,7 +69,8 @@ export function ProcessingStep({
                   "text-lg transition duration-500",
                   !isVisible && "opacity-20",
                   isVisible && !isCurrent && "opacity-45",
-                  isCurrent && "animate-shimmer font-semibold text-fantasy-rose",
+                  isCurrent && status !== "failed" && "animate-shimmer font-semibold text-fantasy-rose",
+                  isCurrent && status === "failed" && "font-semibold text-rose-200",
                 )}
               >
                 {phrase}

@@ -9,7 +9,9 @@ import { formatDateTime } from "@/lib/utils";
 export function GeminiSettingsPanel({ settings }: { settings: AppSettings }) {
   const [promptTemplate, setPromptTemplate] = useState(settings.gemini.promptTemplate);
   const [statusMessage, setStatusMessage] = useState(
-    "Server-only Gemini configuration is mocked for this scaffold.",
+    settings.gemini.apiKeyConfigured
+      ? "Server runtime detected a configured Gemini key. Prompt saving and key rotation still need a secure backend store."
+      : "Gemini is not configured yet. Add GEMINI_API_KEY in Vercel before enabling live generation.",
   );
 
   return (
@@ -51,7 +53,7 @@ export function GeminiSettingsPanel({ settings }: { settings: AppSettings }) {
             <Button
               variant="admin"
               onClick={() =>
-                setStatusMessage("Mock action: replace key should open a secure server-side flow.")
+                setStatusMessage("TODO: replace key should open a secure server-side rotation flow.")
               }
             >
               Replace Key
@@ -59,7 +61,11 @@ export function GeminiSettingsPanel({ settings }: { settings: AppSettings }) {
             <Button
               variant="admin"
               onClick={() =>
-                setStatusMessage("Mock connection test passed. Wire this to a protected backend ping.")
+                setStatusMessage(
+                  settings.gemini.apiKeyConfigured
+                    ? "Server sees a Gemini key. Next step: add a protected backend ping for a real connection test."
+                    : "No Gemini key is configured yet, so a live connection test cannot run.",
+                )
               }
             >
               Test Connection
@@ -83,7 +89,9 @@ export function GeminiSettingsPanel({ settings }: { settings: AppSettings }) {
             <Button
               variant="admin"
               onClick={() =>
-                setStatusMessage("Mock save complete. Persist Gemini settings in a secure backend store.")
+                setStatusMessage(
+                  "TODO: save the prompt template into a protected backend settings store before using this editor in production.",
+                )
               }
             >
               Save Settings
