@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import type { Route } from "next";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { GeminiSettingsPanel } from "@/components/admin/gemini-settings-panel";
 import { GenerationRecordsPanel } from "@/components/admin/generation-records-panel";
 import { StyleLibraryPanel } from "@/components/admin/style-library-panel";
@@ -11,9 +11,10 @@ import { appSettings, dashboardTabs, generationRecords, styles } from "@/lib/moc
 import type { AdminDashboardTab } from "@/types/domain";
 import { cn } from "@/lib/utils";
 
+const DASHBOARD_ROUTE = "/admin/dashboard" as const;
+
 export function DashboardShell() {
   const searchParams = useSearchParams();
-  const pathname = usePathname();
   const router = useRouter();
   const activeTab = (searchParams.get("tab") as AdminDashboardTab | null) ?? "style-library";
 
@@ -49,7 +50,7 @@ export function DashboardShell() {
                 onClick={() => {
                   const nextParams = new URLSearchParams(searchParams.toString());
                   nextParams.set("tab", tab.id);
-                  const nextRoute = `${pathname}?${nextParams.toString()}` as Route;
+                  const nextRoute = `${DASHBOARD_ROUTE}?${nextParams.toString()}` as Route;
                   router.replace(nextRoute);
                 }}
                 className={cn(
