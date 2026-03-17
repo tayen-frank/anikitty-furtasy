@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 type StartStepProps = {
@@ -22,6 +23,7 @@ export function StartStep({
   onNext,
 }: StartStepProps) {
   const isValid = catName.trim().length > 0 && passCode.trim().length > 0;
+  const [isPassCodeVisible, setIsPassCodeVisible] = useState(false);
 
   return (
     <section className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
@@ -64,13 +66,24 @@ export function StartStep({
             <label className="mb-2 block text-sm uppercase tracking-[0.18em] text-fantasy-rose/80">
               Pass Code
             </label>
-            <input
-              type="password"
-              value={passCode}
-              onChange={(event) => onPassCodeChange(event.target.value)}
-              placeholder="Enter your invitation code"
-              className="w-full rounded-2xl border border-white/10 bg-[#120923] px-4 py-3 text-base text-white outline-none transition placeholder:text-white/35 focus:border-fantasy-gold/60"
-            />
+            <div className="relative">
+              <input
+                type={isPassCodeVisible ? "text" : "password"}
+                value={passCode}
+                onChange={(event) => onPassCodeChange(event.target.value)}
+                placeholder="Enter your invitation code"
+                className="w-full rounded-2xl border border-white/10 bg-[#120923] px-4 py-3 pr-14 text-base text-white outline-none transition placeholder:text-white/35 focus:border-fantasy-gold/60"
+              />
+              <button
+                type="button"
+                aria-label={isPassCodeVisible ? "Hide pass code" : "Show pass code"}
+                aria-pressed={isPassCodeVisible}
+                onClick={() => setIsPassCodeVisible((current) => !current)}
+                className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-fantasy-mist/60 transition hover:text-fantasy-gold focus:outline-none focus:text-fantasy-gold"
+              >
+                {isPassCodeVisible ? <EyeOffIcon /> : <EyeIcon />}
+              </button>
+            </div>
           </div>
           {errorMessage && (
             <div className="rounded-2xl border border-rose-300/30 bg-rose-300/10 px-4 py-3 text-sm leading-6 text-rose-100">
@@ -86,5 +99,44 @@ export function StartStep({
         </div>
       </div>
     </section>
+  );
+}
+
+function EyeIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-5 w-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12Z" />
+      <circle cx="12" cy="12" r="3.2" />
+    </svg>
+  );
+}
+
+function EyeOffIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      className="h-5 w-5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M3 3l18 18" />
+      <path d="M10.6 5.7A10 10 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a18.8 18.8 0 0 1-3 3.9" />
+      <path d="M6.6 6.6A18.8 18.8 0 0 0 2.5 12S6 18.5 12 18.5a9.8 9.8 0 0 0 5.4-1.6" />
+      <path d="M9.9 9.9A3.2 3.2 0 0 0 12 15.2" />
+      <path d="M14.1 14.1A3.2 3.2 0 0 0 12 8.8" />
+    </svg>
   );
 }
