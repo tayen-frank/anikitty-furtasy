@@ -55,7 +55,7 @@ export function StyleLibraryPanel({ initialStyles }: { initialStyles: FantasySty
         <p className="rounded-full bg-admin-cloud px-4 py-2 text-sm text-admin-slate">{message}</p>
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-2">
+      <div className="grid gap-5">
         {sortedStyles.map((style) => {
           const draft = drafts[style.id] ?? {
             name: style.name,
