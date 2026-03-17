@@ -20,13 +20,64 @@ type UpdateStylePatch = Partial<
   objectKey?: string;
 };
 
-const LEGACY_CELESTIAL_ORACLE = {
-  id: "style_celestial_oracle",
-  slug: "celestial-oracle",
-  name: "Celestial Oracle",
-  description: "Starwoven robes, luminous accents, and a serene cosmic presence.",
-  imageUrl: "/placeholders/celestial-oracle.svg",
-} as const;
+const LEGACY_STYLE_DEFAULTS: Record<
+  string,
+  {
+    slug: string;
+    name: string;
+    description: string;
+    imageUrl: string;
+  }
+> = {
+  style_feline_samurai: {
+    slug: "feline-samurai",
+    name: "Feline Samurai",
+    description: "Blade-ready regalia, disciplined posture, and moonlit armor detailing.",
+    imageUrl: "/placeholders/feline-samurai.svg",
+  },
+  style_royal_aristocat: {
+    slug: "royal-aristocat",
+    name: "Royal Aristocat",
+    description: "Grand court portraiture with velvet tailoring, gold filigree, and noble poise.",
+    imageUrl: "/placeholders/royal-aristocat.svg",
+  },
+  style_arcane_spellcaster: {
+    slug: "arcane-spellcaster",
+    name: "Arcane Spellcaster",
+    description: "Mystic sigils, enchanted fabrics, and elegant spellbound intensity.",
+    imageUrl: "/placeholders/arcane-spellcaster.svg",
+  },
+  style_forest_guardian: {
+    slug: "forest-guardian",
+    name: "Forest Guardian",
+    description: "Ancient woodland motifs, druidic ornament, and protective natural power.",
+    imageUrl: "/placeholders/forest-guardian.svg",
+  },
+  style_sky_pirate_captain: {
+    slug: "sky-pirate-captain",
+    name: "Sky Pirate Captain",
+    description: "Cloud-swept swagger, tailored coats, brass trims, and airborne adventure.",
+    imageUrl: "/placeholders/sky-pirate-captain.svg",
+  },
+  style_celestial_oracle: {
+    slug: "celestial-oracle",
+    name: "Celestial Oracle",
+    description: "Starwoven robes, luminous accents, and a serene cosmic presence.",
+    imageUrl: "/placeholders/celestial-oracle.svg",
+  },
+  style_dragon_rider: {
+    slug: "dragon-rider",
+    name: "Dragon Rider",
+    description: "Heroic battle leathers, embers, and windswept high-fantasy momentum.",
+    imageUrl: "/placeholders/dragon-rider.svg",
+  },
+  style_shadow_assassin: {
+    slug: "shadow-assassin",
+    name: "Shadow Assassin",
+    description: "Stealthy silhouettes, midnight fabrics, and razor-focused elegance.",
+    imageUrl: "/placeholders/shadow-assassin.svg",
+  },
+};
 
 export async function getAllStyles() {
   const manifest = await readStyleManifest();
@@ -112,15 +163,19 @@ function normalizeStyles(input: unknown): FantasyStyle[] {
       continue;
     }
 
-    persistedById.set(id, normalizeLegacyStyleFields(id, {
+    persistedById.set(
       id,
-      slug: typeof item.slug === "string" ? item.slug : undefined,
-      name: typeof item.name === "string" ? item.name : undefined,
-      description: typeof item.description === "string" ? item.description : undefined,
-      imageUrl: typeof item.imageUrl === "string" ? item.imageUrl : undefined,
-      updatedAt: typeof item.updatedAt === "string" ? item.updatedAt : undefined,
-      status: item.status === "draft" ? "draft" : item.status === "active" ? "active" : undefined,
-    }));
+      normalizeLegacyStyleFields(id, {
+        id,
+        slug: typeof item.slug === "string" ? item.slug : undefined,
+        name: typeof item.name === "string" ? item.name : undefined,
+        description: typeof item.description === "string" ? item.description : undefined,
+        imageUrl: typeof item.imageUrl === "string" ? item.imageUrl : undefined,
+        updatedAt: typeof item.updatedAt === "string" ? item.updatedAt : undefined,
+        status:
+          item.status === "draft" ? "draft" : item.status === "active" ? "active" : undefined,
+      }),
+    );
   }
 
   return seededStyles.map((seededStyle) => {
@@ -145,32 +200,29 @@ function normalizeStyles(input: unknown): FantasyStyle[] {
 }
 
 function normalizeLegacyStyleFields(styleId: string, persisted: Partial<FantasyStyle>) {
-  if (styleId !== LEGACY_CELESTIAL_ORACLE.id) {
-    return persisted;
-  }
-
+  const legacyDefaults = LEGACY_STYLE_DEFAULTS[styleId];
   const seededStyle = seededStyles.find((style) => style.id === styleId);
 
-  if (!seededStyle) {
+  if (!legacyDefaults || !seededStyle) {
     return persisted;
   }
 
   return {
     ...persisted,
     slug:
-      !persisted.slug || persisted.slug === LEGACY_CELESTIAL_ORACLE.slug
+      !persisted.slug || persisted.slug === legacyDefaults.slug
         ? seededStyle.slug
         : persisted.slug,
     name:
-      !persisted.name || persisted.name === LEGACY_CELESTIAL_ORACLE.name
+      !persisted.name || persisted.name === legacyDefaults.name
         ? seededStyle.name
         : persisted.name,
     description:
-      !persisted.description || persisted.description === LEGACY_CELESTIAL_ORACLE.description
+      !persisted.description || persisted.description === legacyDefaults.description
         ? seededStyle.description
         : persisted.description,
     imageUrl:
-      !persisted.imageUrl || persisted.imageUrl === LEGACY_CELESTIAL_ORACLE.imageUrl
+      !persisted.imageUrl || persisted.imageUrl === legacyDefaults.imageUrl
         ? seededStyle.imageUrl
         : persisted.imageUrl,
   };

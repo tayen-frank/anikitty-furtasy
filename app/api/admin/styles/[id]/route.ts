@@ -28,16 +28,26 @@ export async function PATCH(
 
   const { id } = await context.params;
   const body = (await request.json().catch(() => null)) as UpdateStyleBody | null;
-  const imageUrl = String(body?.imageUrl ?? "").trim();
-  const objectKey = String(body?.objectKey ?? "").trim();
+  const imageUrl = typeof body?.imageUrl === "string" ? body.imageUrl.trim() : undefined;
+  const objectKey = typeof body?.objectKey === "string" ? body.objectKey.trim() : undefined;
   const description = typeof body?.description === "string" ? body.description.trim() : undefined;
   const name = typeof body?.name === "string" ? body.name.trim() : undefined;
   const status =
     body?.status === "draft" ? "draft" : body?.status === "active" ? "active" : undefined;
 
-  if (!imageUrl || !objectKey) {
+  const hasImageUrl = Boolean(imageUrl);
+  const hasObjectKey = Boolean(objectKey);
+
+  if (hasImageUrl !== hasObjectKey) {
     return NextResponse.json(
-      { error: "Both imageUrl and objectKey are required." },
+      { error: "imageUrl and objectKey must be provided together when replacing an image." },
+      { status: 400 },
+    );
+  }
+
+  if (!hasImageUrl && !name && !description && !status) {
+    return NextResponse.json(
+      { error: "Provide at least one field to update." },
       { status: 400 },
     );
   }
