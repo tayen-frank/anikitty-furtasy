@@ -1,4 +1,10 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { getPersistedAppSettings } from "@/lib/app-settings-store";
+import {
+  PUBLIC_ACCESS_GATE_COOKIE_NAME,
+  readPublicAccessGateSession,
+} from "@/lib/auth/public-access-gate";
 import { createMockPortraitJob } from "@/lib/mock-job-store";
 import { getStyleById } from "@/lib/style-store";
 
@@ -20,6 +26,25 @@ export async function POST(request: Request) {
   // TODO: Move long-running generation into a durable queue / worker for production scale.
   // TODO: Add audit logging and rate limiting for production usage.
   const contentType = request.headers.get("content-type") ?? "";
+  const persistedSettings = await getPersistedAppSettings();
+  const isAccessGateConfigured = Boolean(persistedSettings?.accessGate?.passCodeHash);
+
+  if (isAccessGateConfigured) {
+    const cookieStore = await cookies();
+    const accessGateSession = await readPublicAccessGateSession(
+      cookieStore.get(PUBLIC_ACCESS_GATE_COOKIE_NAME)?.value ?? null,
+    );
+
+    if (!accessGateSession) {
+      return NextResponse.json(
+        {
+          error:
+            "Public access verification is required before creating a portrait job. Return to the start page and enter the correct pass code.",
+        },
+        { status: 401 },
+      );
+    }
+  }
 
   if (contentType.includes("application/json")) {
     const body = (await request.json().catch(() => null)) as PortraitJobRequestBody | null;

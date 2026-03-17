@@ -16,11 +16,16 @@ const STORAGE_KEY = "anikitty-public-flow";
 type PersistedFlowState = {
   currentStep: FlowStepId;
   catName: string;
-  passCode: string;
   styleId: string;
   photoName: string;
   jobId: string | null;
   resultImageUrl: string | null;
+};
+
+type VerifyAccessGateResponse = {
+  isConfigured?: boolean;
+  isValid?: boolean;
+  error?: string;
 };
 
 export function PublicFlow({ initialStyles }: { initialStyles: FantasyStyle[] }) {
@@ -34,6 +39,8 @@ export function PublicFlow({ initialStyles }: { initialStyles: FantasyStyle[] })
   const [jobSnapshot, setJobSnapshot] = useState<PortraitJobSnapshot | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasHydrated, setHasHydrated] = useState(false);
+  const [isVerifyingPassCode, setIsVerifyingPassCode] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
   const revealTimeoutRef = useRef<number | null>(null);
   const selectedStyle = useMemo(
     () => initialStyles.find((style) => style.id === styleId),
@@ -45,10 +52,9 @@ export function PublicFlow({ initialStyles }: { initialStyles: FantasyStyle[] })
 
     if (raw) {
       try {
-        const parsed = JSON.parse(raw) as PersistedFlowState;
+        const parsed = JSON.parse(raw) as Partial<PersistedFlowState>;
         setCurrentStep(parsed.currentStep ?? "start");
         setCatName(parsed.catName ?? "");
-        setPassCode(parsed.passCode ?? "");
         setStyleId(parsed.styleId ?? "");
         setPhotoName(parsed.photoName ?? "");
         setJobSnapshot(
@@ -83,7 +89,6 @@ export function PublicFlow({ initialStyles }: { initialStyles: FantasyStyle[] })
     const payload: PersistedFlowState = {
       currentStep,
       catName,
-      passCode,
       styleId,
       photoName,
       jobId: jobSnapshot?.id ?? null,
@@ -91,7 +96,7 @@ export function PublicFlow({ initialStyles }: { initialStyles: FantasyStyle[] })
     };
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  }, [catName, currentStep, hasHydrated, jobSnapshot, passCode, photoName, styleId]);
+  }, [catName, currentStep, hasHydrated, jobSnapshot, photoName, styleId]);
 
   useEffect(() => {
     return () => {
@@ -164,6 +169,7 @@ export function PublicFlow({ initialStyles }: { initialStyles: FantasyStyle[] })
     setPhotoName("");
     setPhotoPreviewUrl(null);
     setJobSnapshot(null);
+    setStartError(null);
     window.localStorage.removeItem(STORAGE_KEY);
   };
 
@@ -179,6 +185,46 @@ export function PublicFlow({ initialStyles }: { initialStyles: FantasyStyle[] })
     setPhotoFile(file);
     setPhotoName(file.name);
     setPhotoPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleStartFlow = async () => {
+    if (!catName.trim()) {
+      setStartError("Please enter your cat's name before continuing.");
+      return;
+    }
+
+    if (!passCode.trim()) {
+      setStartError("Please enter the pass code before continuing.");
+      return;
+    }
+
+    setIsVerifyingPassCode(true);
+    setStartError(null);
+
+    try {
+      const response = await fetch("/api/public/access-gate/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          passCode,
+        }),
+      });
+      const payload = (await response.json().catch(() => null)) as VerifyAccessGateResponse | null;
+
+      if (!response.ok || !payload?.isValid) {
+        throw new Error(payload?.error ?? "Unable to verify the pass code.");
+      }
+
+      setCurrentStep("style");
+    } catch (error) {
+      setStartError(
+        error instanceof Error ? error.message : "Unable to verify the pass code.",
+      );
+    } finally {
+      setIsVerifyingPassCode(false);
+    }
   };
 
   const handleCreateJob = async () => {
@@ -232,9 +278,23 @@ export function PublicFlow({ initialStyles }: { initialStyles: FantasyStyle[] })
             <StartStep
               catName={catName}
               passCode={passCode}
-              onCatNameChange={setCatName}
-              onPassCodeChange={setPassCode}
-              onNext={() => setCurrentStep("style")}
+              isVerifying={isVerifyingPassCode}
+              errorMessage={startError}
+              onCatNameChange={(value) => {
+                setCatName(value);
+                if (startError) {
+                  setStartError(null);
+                }
+              }}
+              onPassCodeChange={(value) => {
+                setPassCode(value);
+                if (startError) {
+                  setStartError(null);
+                }
+              }}
+              onNext={() => {
+                void handleStartFlow();
+              }}
             />
           )}
 

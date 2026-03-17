@@ -135,6 +135,10 @@ export const appSettings: AppSettings = {
     apiKeyConfigured: true,
     lastRotatedAt: "2026-03-01T06:30:00.000Z",
   },
+  accessGate: {
+    passCodeConfigured: true,
+    updatedAt: "2026-03-01T06:30:00.000Z",
+  },
 };
 
 export const generationRecords: PortraitJobRecord[] = [

@@ -16,14 +16,35 @@ export function GeminiSettingsPanel({ settings }: { settings: AppSettings }) {
   const [availableModels, setAvailableModels] = useState(settings.gemini.availableModels);
   const [modelName, setModelName] = useState(settings.gemini.modelName);
   const [promptTemplate, setPromptTemplate] = useState(settings.gemini.promptTemplate);
+  const [passCode, setPassCode] = useState("");
+  const [isPassCodeConfigured, setIsPassCodeConfigured] = useState(
+    settings.accessGate.passCodeConfigured,
+  );
+  const [passCodeUpdatedAt, setPassCodeUpdatedAt] = useState(settings.accessGate.updatedAt);
   const [statusMessage, setStatusMessage] = useState(
     settings.gemini.apiKeyConfigured
-      ? "Server runtime detected a configured Gemini key. Prompt and model settings can now be saved from this panel."
+      ? "Server runtime detected a configured Gemini key. Prompt, model, and access gate settings can now be saved from this panel."
       : "Gemini is not configured yet. Add GEMINI_API_KEY in Vercel before enabling live generation.",
   );
   const [isReplaceKeyPanelOpen, setIsReplaceKeyPanelOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSavingGeminiSettings, setIsSavingGeminiSettings] = useState(false);
+  const [isSavingPassCode, setIsSavingPassCode] = useState(false);
   const [isRefreshingModels, setIsRefreshingModels] = useState(false);
+
+  useEffect(() => {
+    setAvailableModels(settings.gemini.availableModels);
+    setModelName(settings.gemini.modelName);
+    setPromptTemplate(settings.gemini.promptTemplate);
+  }, [
+    settings.gemini.availableModels,
+    settings.gemini.modelName,
+    settings.gemini.promptTemplate,
+  ]);
+
+  useEffect(() => {
+    setIsPassCodeConfigured(settings.accessGate.passCodeConfigured);
+    setPassCodeUpdatedAt(settings.accessGate.updatedAt);
+  }, [settings.accessGate.passCodeConfigured, settings.accessGate.updatedAt]);
 
   useEffect(() => {
     if (!settings.gemini.apiKeyConfigured) {
@@ -56,7 +77,7 @@ export function GeminiSettingsPanel({ settings }: { settings: AppSettings }) {
 
       if (!isSilent) {
         setStatusMessage(
-          `Loaded ${nextModels.length} available Gemini image model${
+          `Loaded ${nextModels.length} available Gemini model${
             nextModels.length === 1 ? "" : "s"
           } from Google.`,
         );
@@ -109,8 +130,7 @@ export function GeminiSettingsPanel({ settings }: { settings: AppSettings }) {
               </Button>
             </div>
             <p className="mt-3 text-sm leading-6 text-admin-slate">
-              The list is fetched server-side from Google using your configured `GEMINI_API_KEY`, then
-              filtered to image-oriented models.
+              The list is fetched server-side from Google using your configured `GEMINI_API_KEY`.
             </p>
           </div>
           <div>
@@ -191,16 +211,16 @@ export function GeminiSettingsPanel({ settings }: { settings: AppSettings }) {
             <textarea
               value={promptTemplate}
               onChange={(event) => setPromptTemplate(event.target.value)}
-              rows={16}
+              rows={12}
               className="mt-3 w-full rounded-[1.5rem] border border-slate-200 bg-admin-cloud px-4 py-4 text-sm leading-7 text-admin-ink outline-none focus:border-admin-brass"
             />
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button
               variant="admin"
-              disabled={isSaving}
+              disabled={isSavingGeminiSettings}
               onClick={async () => {
-                setIsSaving(true);
+                setIsSavingGeminiSettings(true);
 
                 try {
                   const response = await fetch("/api/admin/gemini-settings", {
@@ -233,14 +253,97 @@ export function GeminiSettingsPanel({ settings }: { settings: AppSettings }) {
                     error instanceof Error ? error.message : "Unable to save Gemini settings.",
                   );
                 } finally {
-                  setIsSaving(false);
+                  setIsSavingGeminiSettings(false);
                 }
               }}
             >
-              {isSaving ? "Saving..." : "Save Settings"}
+              {isSavingGeminiSettings ? "Saving..." : "Save Gemini Settings"}
             </Button>
           </div>
-          <p className="rounded-[1.25rem] bg-admin-cloud px-4 py-3 text-sm text-admin-slate">
+
+          <div className="rounded-[1.5rem] border border-black/5 bg-admin-cloud px-4 py-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-admin-slate">
+                  Public Access Gate
+                </p>
+                <p className="mt-2 text-sm leading-6 text-admin-slate">
+                  Require customers to enter the correct pass code before they can continue the public
+                  flow.
+                </p>
+              </div>
+              <Badge tone={isPassCodeConfigured ? "success" : "danger"}>
+                {isPassCodeConfigured ? "Configured" : "Not configured"}
+              </Badge>
+            </div>
+            <div className="mt-4">
+              <label className="text-sm font-semibold uppercase tracking-[0.18em] text-admin-slate">
+                Pass Code
+              </label>
+              <input
+                type="password"
+                value={passCode}
+                onChange={(event) => setPassCode(event.target.value)}
+                placeholder={
+                  isPassCodeConfigured
+                    ? "Enter a new pass code to replace the current one"
+                    : "Enter a pass code for the public gate"
+                }
+                className="mt-3 w-full rounded-[1.25rem] border border-slate-200 bg-white px-4 py-3 text-base text-admin-ink outline-none focus:border-admin-brass"
+              />
+            </div>
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-admin-slate">
+                Last updated:{" "}
+                {passCodeUpdatedAt
+                  ? formatDateTime(passCodeUpdatedAt)
+                  : "No pass code saved yet"}
+              </p>
+              <Button
+                variant="admin"
+                disabled={isSavingPassCode}
+                onClick={async () => {
+                  setIsSavingPassCode(true);
+
+                  try {
+                    const response = await fetch("/api/admin/access-gate", {
+                      method: "PATCH",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        passCode,
+                      }),
+                    });
+                    const payload = (await response.json().catch(() => null)) as
+                      | { error?: string; passCodeConfigured?: boolean; updatedAt?: string | null }
+                      | null;
+
+                    if (!response.ok) {
+                      throw new Error(payload?.error ?? "Unable to save pass code.");
+                    }
+
+                    setPassCode("");
+                    setIsPassCodeConfigured(Boolean(payload?.passCodeConfigured));
+                    setPassCodeUpdatedAt(payload?.updatedAt ?? null);
+                    setStatusMessage(
+                      "Saved the public access pass code. Customers must now pass server-side verification before entering.",
+                    );
+                  } catch (error) {
+                    setStatusMessage(
+                      error instanceof Error ? error.message : "Unable to save pass code.",
+                    );
+                  } finally {
+                    setIsSavingPassCode(false);
+                  }
+                }}
+              >
+                {isSavingPassCode ? "Saving..." : "Save Pass Code"}
+              </Button>
+            </div>
+          </div>
+
+          <p className="rounded-[1.25rem] bg-white px-4 py-3 text-sm text-admin-slate">
             {statusMessage}
           </p>
         </div>

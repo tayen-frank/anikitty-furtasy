@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { DashboardShell } from "@/components/admin/dashboard-shell";
 import { ADMIN_SESSION_COOKIE_NAME, readAdminSession } from "@/lib/auth/admin-session";
+import { getPersistedAppSettings } from "@/lib/app-settings-store";
 import { getGeminiRuntimeSettings } from "@/lib/gemini";
 import { getGenerationRecords } from "@/lib/generation-record-store";
 import { getAllStyles } from "@/lib/style-store";
@@ -40,7 +41,12 @@ export default async function AdminDashboardPage() {
     redirect("/admin");
   }
 
-  const geminiSettings = await getGeminiRuntimeSettings();
+  const [geminiSettings, persistedSettings, styles, records] = await Promise.all([
+    getGeminiRuntimeSettings(),
+    getPersistedAppSettings(),
+    getAllStyles(),
+    getGenerationRecords(),
+  ]);
   const appSettings: AppSettings = {
     gemini: {
       modelName: geminiSettings.modelName,
@@ -49,6 +55,10 @@ export default async function AdminDashboardPage() {
       apiKeyConfigured: geminiSettings.apiKeyConfigured,
       lastRotatedAt: geminiSettings.lastRotatedAt,
     },
+    accessGate: {
+      passCodeConfigured: Boolean(persistedSettings?.accessGate?.passCodeHash),
+      updatedAt: persistedSettings?.accessGate?.updatedAt ?? null,
+    },
   };
 
   return (
@@ -56,8 +66,8 @@ export default async function AdminDashboardPage() {
       <DashboardShell
         adminEmail={session.email}
         settings={appSettings}
-        styles={await getAllStyles()}
-        records={await getGenerationRecords()}
+        styles={styles}
+        records={records}
       />
     </Suspense>
   );

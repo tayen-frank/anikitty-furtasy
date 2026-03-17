@@ -47,6 +47,10 @@ export type AppSettings = {
     apiKeyConfigured: boolean;
     lastRotatedAt: string | null;
   };
+  accessGate: {
+    passCodeConfigured: boolean;
+    updatedAt: string | null;
+  };
 };
 
 export type AdminDashboardTabConfig = {

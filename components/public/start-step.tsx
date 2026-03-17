@@ -1,8 +1,12 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 
 type StartStepProps = {
   catName: string;
   passCode: string;
+  isVerifying?: boolean;
+  errorMessage?: string | null;
   onCatNameChange: (value: string) => void;
   onPassCodeChange: (value: string) => void;
   onNext: () => void;
@@ -11,6 +15,8 @@ type StartStepProps = {
 export function StartStep({
   catName,
   passCode,
+  isVerifying = false,
+  errorMessage,
   onCatNameChange,
   onPassCodeChange,
   onNext,
@@ -66,12 +72,16 @@ export function StartStep({
               className="w-full rounded-2xl border border-white/10 bg-[#120923] px-4 py-3 text-base text-white outline-none transition placeholder:text-white/35 focus:border-fantasy-gold/60"
             />
           </div>
-          <Button onClick={onNext} disabled={!isValid} fullWidth>
-            Start
+          {errorMessage && (
+            <div className="rounded-2xl border border-rose-300/30 bg-rose-300/10 px-4 py-3 text-sm leading-6 text-rose-100">
+              {errorMessage}
+            </div>
+          )}
+          <Button onClick={onNext} disabled={!isValid || isVerifying} fullWidth>
+            {isVerifying ? "Verifying..." : "Start"}
           </Button>
           <p className="text-sm leading-7 text-fantasy-mist/60">
-            TODO: Wire the pass code into your real purchase, access, or invite gate once backend auth
-            and order validation exist.
+            Access is checked server-side against the pass code configured in the admin dashboard.
           </p>
         </div>
       </div>
