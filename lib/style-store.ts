@@ -111,10 +111,14 @@ export async function updateStyleAsset(styleId: string, patch: UpdateStylePatch)
     }
   }
 
+  const sanitizedStylePatch = Object.fromEntries(
+    Object.entries(stylePatch).filter(([, value]) => value !== undefined),
+  ) as Partial<FantasyStyle>;
+
   const updatedStyle: FantasyStyle = {
     ...current,
-    ...stylePatch,
-    updatedAt: stylePatch.updatedAt ?? new Date().toISOString(),
+    ...sanitizedStylePatch,
+    updatedAt: patch.updatedAt ?? new Date().toISOString(),
   };
   const nextStyles = currentStyles.map((style) => (style.id === styleId ? updatedStyle : style));
 
