@@ -42,6 +42,8 @@ export function PublicFlow({ initialStyles }: { initialStyles: FantasyStyle[] })
   const [isVerifyingPassCode, setIsVerifyingPassCode] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
   const revealTimeoutRef = useRef<number | null>(null);
+  const topAnchorRef = useRef<HTMLDivElement | null>(null);
+  const previousStepRef = useRef<FlowStepId>("start");
   const selectedStyle = useMemo(
     () => initialStyles.find((style) => style.id === styleId),
     [initialStyles, styleId],
@@ -109,6 +111,22 @@ export function PublicFlow({ initialStyles }: { initialStyles: FantasyStyle[] })
       }
     };
   }, [photoPreviewUrl]);
+
+  useEffect(() => {
+    if (!hasHydrated) {
+      return;
+    }
+
+    if (previousStepRef.current === currentStep) {
+      return;
+    }
+
+    previousStepRef.current = currentStep;
+    topAnchorRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [currentStep, hasHydrated]);
 
   useEffect(() => {
     if (currentStep !== "processing" || !jobSnapshot?.id) {
@@ -268,7 +286,10 @@ export function PublicFlow({ initialStyles }: { initialStyles: FantasyStyle[] })
 
   return (
     <main className="fantasy-shell min-h-screen">
-      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <div
+        ref={topAnchorRef}
+        className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
+      >
         <div className="mb-5 rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-3 shadow-aurora backdrop-blur sm:mb-8 sm:rounded-[2rem] sm:p-7">
           <FlowStepper steps={[...publicFlowSteps]} activeStep={currentStep} />
         </div>
