@@ -6,12 +6,27 @@ import type {
 } from "@/types/domain";
 
 export const loadingPhrases = [
-  "Awakening the Moonwell",
-  "Grinding Dragonbone Dust",
-  "Etching the Rune Script",
-  "Polishing the Battle Armor",
-  "Sealing the Royal Portrait",
-];
+  "Distilling moonlit potions...",
+  "Gathering dragon bones...",
+  "Polishing ancient runes...",
+  "Summoning hidden flames...",
+  "Reading the star charts...",
+  "Weaving fate threads...",
+  "Awakening arcane sparks...",
+  "Decoding whisker destiny...",
+  "Brewing heroic essence...",
+  "Forging enchanted armor...",
+  "Tracing celestial marks...",
+  "Infusing mythical power...",
+  "Calling the ancient winds...",
+  "Unsealing secret lineage...",
+  "Aligning the astral paths...",
+  "Charging the crystal core...",
+  "Mapping the soul sigils...",
+  "Gathering phoenix ash...",
+  "Tuning the magic circle...",
+  "Revealing noble bloodlines...",
+] as const;
 
 export const publicFlowSteps = [
   { id: "start", label: "Start" },
