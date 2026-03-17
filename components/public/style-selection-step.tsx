@@ -24,8 +24,7 @@ export function StyleSelectionStep({
         <Badge tone="violet">Choose One Fantasy Destiny</Badge>
         <h2 className="text-3xl text-white sm:text-4xl">Select your cat&apos;s transformation style</h2>
         <p className="max-w-3xl text-base text-fantasy-mist/70">
-          Each style will be used as the artistic reference for the generated portrait. The production
-          backend should map the selected style ID to a secure server-side reference asset.
+          Choose the fantasy identity that best matches your cat&apos;s hidden spirit and heroic aura.
         </p>
       </div>
 

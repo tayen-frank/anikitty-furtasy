@@ -42,7 +42,7 @@ export function StartStep({
             Premium fantasy portraits
           </span>
           <span className="rounded-full border border-fantasy-gold/25 px-4 py-2">
-            Identity-preserving AI pipeline
+            Crafted to keep your cat recognizable
           </span>
         </div>
       </div>
@@ -68,7 +68,7 @@ export function StartStep({
               type="password"
               value={passCode}
               onChange={(event) => onPassCodeChange(event.target.value)}
-              placeholder="Moonlit access code"
+              placeholder="Enter your invitation code"
               className="w-full rounded-2xl border border-white/10 bg-[#120923] px-4 py-3 text-base text-white outline-none transition placeholder:text-white/35 focus:border-fantasy-gold/60"
             />
           </div>
@@ -81,7 +81,7 @@ export function StartStep({
             {isVerifying ? "Verifying..." : "Start"}
           </Button>
           <p className="text-sm leading-7 text-fantasy-mist/60">
-            Access is checked server-side against the pass code configured in the admin dashboard.
+            Enter your cat&apos;s name and your pass code to begin the transformation ritual.
           </p>
         </div>
       </div>

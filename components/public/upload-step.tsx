@@ -41,8 +41,8 @@ export function UploadStep({
         <div className="space-y-3">
           <h2 className="text-3xl text-white sm:text-4xl">Prepare the hero portrait reference</h2>
           <p className="max-w-2xl text-base text-fantasy-mist/70">
-            Your selected style will stay attached to the portrait job while the real backend handles
-            upload validation, storage, and AI generation orchestration.
+            Upload a clear photo so we can reveal a fantasy portrait that still feels unmistakably like
+            your cat.
           </p>
         </div>
 
@@ -118,8 +118,8 @@ export function UploadStep({
           ))}
         </div>
         <p className="text-sm leading-6 text-fantasy-mist/55">
-          TODO: Add client-side EXIF cleanup, HEIC conversion, and richer preflight checks before
-          sending files to production APIs.
+          A clear portrait gives your transformed character the best chance to feel bold, elegant, and
+          unmistakably familiar.
         </p>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button variant="ghost" onClick={onPrevious}>

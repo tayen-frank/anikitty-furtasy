@@ -23,8 +23,8 @@ export function RevealStep({
         <Badge tone="gold">Final Reveal</Badge>
         <div className="space-y-3">
           <h2 className="text-4xl text-white sm:text-5xl">Behold {catName}&apos;s hidden legend</h2>
-          <p className="max-w-2xl text-base text-fantasy-mist/70 sm:text-lg">
-            A premium 2:3 fantasy portrait inspired by the {style?.name ?? "chosen style"} archetype.
+          <p className="mx-auto max-w-2xl text-base leading-7 text-fantasy-mist/70 sm:text-lg">
+            A luminous fantasy portrait, reimagined through the spirit of {style?.name ?? "your chosen destiny"}.
           </p>
         </div>
       </div>
@@ -39,7 +39,7 @@ export function RevealStep({
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <Button variant="ghost" onClick={onPrevious}>
-          Previous Step
+          Back
         </Button>
         <a
           href={resultImageUrl}
@@ -49,7 +49,7 @@ export function RevealStep({
           Download Portrait
         </a>
         <Button variant="secondary" onClick={onRestart}>
-          Create Another
+          Create Another Legend
         </Button>
       </div>
     </section>

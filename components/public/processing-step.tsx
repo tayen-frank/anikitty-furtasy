@@ -94,10 +94,13 @@ export function ProcessingStep({
   return (
     <section className="mx-auto max-w-4xl space-y-8 py-8 text-center">
       <div className="space-y-3">
-        <p className="text-sm uppercase tracking-[0.34em] text-fantasy-gold/80">Portrait Ritual</p>
+        <p className="text-sm uppercase tracking-[0.34em] text-fantasy-gold/80">Transformation Ritual</p>
         <h2 className="text-4xl text-white sm:text-5xl">
-          Forging {catName || "your cat"} into {styleName}
+          Revealing {catName || "your cat"} as {styleName}
         </h2>
+        <p className="mx-auto max-w-2xl text-base leading-7 text-fantasy-mist/70">
+          The portrait is being shaped with your chosen fantasy essence. Stay close. The final reveal is almost ready.
+        </p>
       </div>
 
       <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.28)] sm:p-8">
@@ -117,7 +120,7 @@ export function ProcessingStep({
         </div>
 
         <div className="mt-3 flex items-center justify-between text-sm text-fantasy-mist/60">
-          <span>Status: {status}</span>
+          <span>{status === "failed" ? "Ritual status: interrupted" : "Ritual in progress"}</span>
           <span>{progress}%</span>
         </div>
 
@@ -130,7 +133,7 @@ export function ProcessingStep({
         <div className="mt-8 flex flex-col items-center justify-center">
           <div className="mb-4 h-px w-28 bg-gradient-to-r from-transparent via-fantasy-gold/60 to-transparent" />
           <p className="text-xs uppercase tracking-[0.34em] text-fantasy-mist/45">
-            Arcane Transmission
+            Arcane Whisper
           </p>
           <div className="relative mt-4 min-h-[3.5rem] w-full max-w-2xl px-4">
             <p
@@ -150,7 +153,7 @@ export function ProcessingStep({
 
       <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Button variant="ghost" onClick={onPrevious}>
-          Previous Step
+          Back
         </Button>
         <Button onClick={onNext} disabled={status !== "done"}>
           Reveal Portrait
