@@ -46,9 +46,16 @@ export function StyleSelectionStep({
               )}
             >
               <div
-                className="flex aspect-[4/5] items-end rounded-[1.25rem] border border-white/10 bg-cover bg-center p-4"
+                className={cn(
+                  "flex aspect-[4/5] items-end rounded-[1.25rem] border border-white/10 bg-cover bg-center p-4 transition duration-300",
+                  isSelected
+                    ? "scale-[1.01] shadow-[0_18px_40px_rgba(244,200,255,0.18)]"
+                    : "brightness-[0.78] saturate-[0.9] group-hover:brightness-[0.9] group-hover:saturate-100",
+                )}
                 style={{
-                  backgroundImage: `linear-gradient(180deg, rgba(17, 7, 34, 0.1), rgba(17, 7, 34, 0.9)), url('${style.imageUrl}')`,
+                  backgroundImage: isSelected
+                    ? `linear-gradient(180deg, rgba(17, 7, 34, 0.02), rgba(17, 7, 34, 0.42)), url('${style.imageUrl}')`
+                    : `linear-gradient(180deg, rgba(17, 7, 34, 0.18), rgba(17, 7, 34, 0.9)), url('${style.imageUrl}')`,
                 }}
               >
                 <Badge tone={isSelected ? "gold" : "violet"}>
