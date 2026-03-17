@@ -20,6 +20,14 @@ type UpdateStylePatch = Partial<
   objectKey?: string;
 };
 
+const LEGACY_CELESTIAL_ORACLE = {
+  id: "style_celestial_oracle",
+  slug: "celestial-oracle",
+  name: "Celestial Oracle",
+  description: "Starwoven robes, luminous accents, and a serene cosmic presence.",
+  imageUrl: "/placeholders/celestial-oracle.svg",
+} as const;
+
 export async function getAllStyles() {
   const manifest = await readStyleManifest();
   return normalizeStyles(manifest?.styles);
@@ -104,7 +112,7 @@ function normalizeStyles(input: unknown): FantasyStyle[] {
       continue;
     }
 
-    persistedById.set(id, {
+    persistedById.set(id, normalizeLegacyStyleFields(id, {
       id,
       slug: typeof item.slug === "string" ? item.slug : undefined,
       name: typeof item.name === "string" ? item.name : undefined,
@@ -112,7 +120,7 @@ function normalizeStyles(input: unknown): FantasyStyle[] {
       imageUrl: typeof item.imageUrl === "string" ? item.imageUrl : undefined,
       updatedAt: typeof item.updatedAt === "string" ? item.updatedAt : undefined,
       status: item.status === "draft" ? "draft" : item.status === "active" ? "active" : undefined,
-    });
+    }));
   }
 
   return seededStyles.map((seededStyle) => {
@@ -134,6 +142,38 @@ function normalizeStyles(input: unknown): FantasyStyle[] {
       status: persisted.status || seededStyle.status,
     };
   });
+}
+
+function normalizeLegacyStyleFields(styleId: string, persisted: Partial<FantasyStyle>) {
+  if (styleId !== LEGACY_CELESTIAL_ORACLE.id) {
+    return persisted;
+  }
+
+  const seededStyle = seededStyles.find((style) => style.id === styleId);
+
+  if (!seededStyle) {
+    return persisted;
+  }
+
+  return {
+    ...persisted,
+    slug:
+      !persisted.slug || persisted.slug === LEGACY_CELESTIAL_ORACLE.slug
+        ? seededStyle.slug
+        : persisted.slug,
+    name:
+      !persisted.name || persisted.name === LEGACY_CELESTIAL_ORACLE.name
+        ? seededStyle.name
+        : persisted.name,
+    description:
+      !persisted.description || persisted.description === LEGACY_CELESTIAL_ORACLE.description
+        ? seededStyle.description
+        : persisted.description,
+    imageUrl:
+      !persisted.imageUrl || persisted.imageUrl === LEGACY_CELESTIAL_ORACLE.imageUrl
+        ? seededStyle.imageUrl
+        : persisted.imageUrl,
+  };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#220d16"/>
+      <stop offset="52%" stop-color="#7a2418"/>
+      <stop offset="100%" stop-color="#f08f2f"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="28%" r="42%">
+      <stop offset="0%" stop-color="#ffdca0" stop-opacity=".7"/>
+      <stop offset="65%" stop-color="#ffb14f" stop-opacity=".15"/>
+      <stop offset="100%" stop-color="#ffb14f" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="1000" rx="48" fill="url(#bg)"/>
+  <circle cx="400" cy="220" r="190" fill="url(#glow)"/>
+  <ellipse cx="400" cy="350" rx="162" ry="196" fill="#f4e0ca"/>
+  <path d="M288 262l68-114 40 132Z" fill="#ffd58f" opacity=".86"/>
+  <path d="M512 262l-68-114-40 132Z" fill="#ffbe66" opacity=".86"/>
+  <path d="M236 782c88-118 142-182 164-192s72 46 102 46 80-56 102-46 76 74 164 192v150H236Z" fill="#291017"/>
+  <path d="M280 730c24-38 44-72 54-114 24 26 42 44 66 60 24-22 42-40 66-60 10 42 30 76 54 114" stroke="#ffd27a" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <path d="M366 156c24-54 48-84 34-120 36 28 58 70 34 124 34-20 56-12 84 18-38 4-56 24-66 52-16-20-36-34-52-44-14 14-24 32-34 54-16-34-24-58 0-84Z" fill="#ffe1a6" opacity=".8"/>
+  <text x="400" y="906" fill="#fff2dc" font-family="Georgia, serif" font-size="42" text-anchor="middle">Flame Mage</text>
+</svg>
