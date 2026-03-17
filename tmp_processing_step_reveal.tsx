@@ -31,7 +31,7 @@ export function ProcessingStep({
   status,
   errorMessage,
   onPrevious,
-  onNext: _onNext,
+  onNext,
 }: ProcessingStepProps) {
   const [activePhraseIndex, setActivePhraseIndex] = useState(() =>
     getRandomPhraseIndex(-1, loadingPhrases.length),
@@ -155,7 +155,9 @@ export function ProcessingStep({
           Back
         </Button>
 
-        {status === "failed" ? (
+        {status === "done" ? (
+          <Button onClick={onNext}>Reveal Portrait</Button>
+        ) : status === "failed" ? (
           <p className="rounded-full border border-rose-400/25 bg-rose-500/10 px-5 py-3 text-sm text-rose-100">
             The ritual was interrupted. Please return and try again.
           </p>

@@ -10,6 +10,25 @@ type RevealStepProps = {
   onRestart: () => void;
 };
 
+const revealSubheadlineTemplates: Record<string, string> = {
+  "Arcane Spellcaster":
+    "{petName} emerges as the Arcane Spellcaster, channeling ancient magic with wisdom, precision, and quiet power.",
+  "Flame Mage":
+    "{petName} emerges as the Flame Mage, blazing with fierce elegance and an unstoppable will.",
+  "Dragon Rider":
+    "{petName} emerges as the Dragon Rider, bound for legend beside a loyal dragon companion.",
+  "Feline Samurai":
+    "{petName} emerges as the Feline Samurai, guided by calm honor, discipline, and razor-sharp skill.",
+  "Forest Guardian":
+    "{petName} emerges as the Forest Guardian, radiant with gentle strength and natural magic.",
+  "Royal Aristocat":
+    "{petName} emerges as the Royal Aristocat, crowned with grace, intelligence, and noble authority.",
+  "Shadow Assassin":
+    "{petName} emerges as the Shadow Assassin, slipping through darkness with silent, deadly precision.",
+  "Sky Pirate Captain":
+    "{petName} emerges as the Sky Pirate Captain, chasing freedom across the skies with fearless charm.",
+};
+
 export function RevealStep({
   catName,
   style,
@@ -17,14 +36,18 @@ export function RevealStep({
   onPrevious,
   onRestart,
 }: RevealStepProps) {
+  const petName = catName || "Your Cat";
+  const headline = `Behold ${petName}'s fantasy alter ego`;
+  const subheadline = getRevealSubheadline(style?.name, petName);
+
   return (
     <section className="mx-auto flex max-w-6xl flex-col items-center gap-8 py-8 text-center">
       <div className="space-y-4">
         <Badge tone="gold">Final Reveal</Badge>
         <div className="space-y-3">
-          <h2 className="text-4xl text-white sm:text-5xl">Behold {catName}&apos;s hidden legend</h2>
+          <h2 className="text-4xl text-white sm:text-5xl">{headline}</h2>
           <p className="mx-auto max-w-2xl text-base leading-7 text-fantasy-mist/70 sm:text-lg">
-            A luminous fantasy portrait, reimagined through the spirit of {style?.name ?? "your chosen destiny"}.
+            {subheadline}
           </p>
         </div>
       </div>
@@ -54,4 +77,12 @@ export function RevealStep({
       </div>
     </section>
   );
+}
+
+function getRevealSubheadline(styleName: string | undefined, petName: string) {
+  const template =
+    (styleName ? revealSubheadlineTemplates[styleName] : undefined) ??
+    "{petName} emerges in a fantasy form shaped by your chosen destiny.";
+
+  return template.replaceAll("{petName}", petName);
 }
