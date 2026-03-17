@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { DashboardShell } from "@/components/admin/dashboard-shell";
 import { ADMIN_SESSION_COOKIE_NAME, readAdminSession } from "@/lib/auth/admin-session";
 import { getGeminiRuntimeSettings } from "@/lib/gemini";
-import { getPortraitJobRecords } from "@/lib/mock-job-store";
+import { getGenerationRecords } from "@/lib/generation-record-store";
 import { getAllStyles } from "@/lib/style-store";
 import type { AppSettings } from "@/types/domain";
 
@@ -57,7 +57,7 @@ export default async function AdminDashboardPage() {
         adminEmail={session.email}
         settings={appSettings}
         styles={await getAllStyles()}
-        records={getPortraitJobRecords()}
+        records={await getGenerationRecords()}
       />
     </Suspense>
   );

@@ -1,7 +1,8 @@
-import { createMockPortraitDataUri, generationRecords, loadingPhrases } from "@/lib/mock-data";
+import { createMockPortraitDataUri, loadingPhrases } from "@/lib/mock-data";
+import { upsertGenerationRecordFromSnapshot } from "@/lib/generation-record-store";
 import { canUseGeminiImageGeneration, generateFantasyCatPortrait } from "@/lib/gemini";
 import { getR2Config, uploadObjectToR2 } from "@/lib/r2";
-import type { PortraitJobRecord, PortraitJobSnapshot } from "@/types/domain";
+import type { PortraitJobSnapshot } from "@/types/domain";
 
 type NewMockJobInput = {
   catName: string;
@@ -43,7 +44,7 @@ function getPromiseStore() {
   return globalJobStore.__anikittyJobPromises;
 }
 
-export function createMockPortraitJob(input: NewMockJobInput): PortraitJobSnapshot {
+export async function createMockPortraitJob(input: NewMockJobInput): Promise<PortraitJobSnapshot> {
   const id = `job_${Math.random().toString(36).slice(2, 10)}`;
   const job: StoredPortraitJob = {
     id,
@@ -61,7 +62,10 @@ export function createMockPortraitJob(input: NewMockJobInput): PortraitJobSnapsh
   };
 
   getStore().set(id, job);
-  return toPublicSnapshot(job);
+  const snapshot = toPublicSnapshot(job);
+  await upsertGenerationRecordFromSnapshot(snapshot);
+
+  return snapshot;
 }
 
 export async function getMockPortraitJobById(id: string) {
@@ -114,24 +118,6 @@ export async function getMockPortraitJobById(id: string) {
   return completedJob ? toPublicSnapshot(completedJob) : null;
 }
 
-export function getPortraitJobRecords(): PortraitJobRecord[] {
-  const seededRecords = generationRecords.map((record) => ({ ...record }));
-  const liveRecords = Array.from(getStore().values()).map((job) => toJobRecord(job));
-  const merged = new Map<string, PortraitJobRecord>();
-
-  for (const record of seededRecords) {
-    merged.set(record.id, record);
-  }
-
-  for (const record of liveRecords) {
-    merged.set(record.id, record);
-  }
-
-  return Array.from(merged.values()).sort(
-    (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
-  );
-}
-
 async function ensureJobCompleted(id: string) {
   const existingPromise = getPromiseStore().get(id);
 
@@ -155,7 +141,7 @@ async function processJob(id: string) {
   }
 
   try {
-    updateStoredJob(id, {
+    await updateStoredJob(id, {
       status: "processing",
       progress: 90,
       loadingPhraseIndex: 5,
@@ -206,12 +192,12 @@ async function processJob(id: string) {
   }
 }
 
-function updateJob(id: string, patch: Partial<StoredPortraitJob>) {
-  const updated = updateStoredJob(id, patch);
+async function updateJob(id: string, patch: Partial<StoredPortraitJob>) {
+  const updated = await updateStoredJob(id, patch);
   return updated ? toPublicSnapshot(updated) : null;
 }
 
-function updateStoredJob(id: string, patch: Partial<StoredPortraitJob>) {
+async function updateStoredJob(id: string, patch: Partial<StoredPortraitJob>) {
   const current = getStore().get(id);
 
   if (!current) {
@@ -223,6 +209,7 @@ function updateStoredJob(id: string, patch: Partial<StoredPortraitJob>) {
     ...patch,
   };
   getStore().set(id, updated);
+  await upsertGenerationRecordFromSnapshot(toPublicSnapshot(updated));
 
   return updated;
 }
@@ -241,17 +228,5 @@ function toPublicSnapshot(job: StoredPortraitJob): PortraitJobSnapshot {
     resultObjectKey: job.resultObjectKey,
     errorMessage: job.errorMessage,
     completedAt: job.completedAt,
-  };
-}
-
-function toJobRecord(job: StoredPortraitJob): PortraitJobRecord {
-  return {
-    id: job.id,
-    catName: job.catName,
-    styleId: job.styleId,
-    styleName: job.styleName,
-    status: job.status,
-    createdAt: job.createdAt,
-    previewImageUrl: job.resultImageUrl ?? createMockPortraitDataUri(job.catName, job.styleName),
   };
 }

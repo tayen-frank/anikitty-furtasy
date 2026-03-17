@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     const styleReferenceUrl = style.imageUrl.startsWith("http")
       ? style.imageUrl
       : new URL(style.imageUrl, request.url).toString();
-    const job = createMockPortraitJob({
+    const job = await createMockPortraitJob({
       catName,
       styleId,
       styleName: style.name,
